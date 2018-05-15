@@ -14,13 +14,13 @@ VAR
 	
 ASSIGN
 	next(state) :=  case 	
-						state = red & youcango : green;
-						state = green & !youcango : red;
+						state = red & next(youcango) : green;
+						state = green & next(!youcango) : red;
 						TRUE : state;
 					esac;
 
 
-MODULE carLight()
+MODULE carLight
 	VAR
 		state : {red, yellow, green};
 		tick : 0..10;
@@ -44,10 +44,11 @@ MODULE carLight()
 						esac;
 
 		init(isRed) := TRUE;
+		--Droit de passage au tick suivant ! Donc anticipé le coup suivant
 		next(isRed) := case
-							state = red : TRUE;
-							state = green : FALSE;
-							state = yellow : FALSE;
+							next(state = red): TRUE;
+							next(state = green): FALSE;
+							next(state = yellow): FALSE;
 						esac;
 
 
@@ -58,7 +59,7 @@ MODULE carLight()
 
 MODULE main
 	VAR
-		car_l : carLight();
+		car_l : carLight;
 		ped_l : PedestrianLight(car_l.isRed);
 
 
