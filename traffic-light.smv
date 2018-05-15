@@ -1,0 +1,35 @@
+MODULE carLight()
+	VAR
+		state : {red, yellow, green};
+		tick : 0..10;
+		isRed : boolean;
+
+	ASSIGN
+		init(state) := red;
+		next(state) := case
+							state = red & tick >= 5 : green;
+							state = green & tick >= 10 : yellow;
+							state = yellow & tick >= 2 : red;
+							TRUE : state;
+						esac;
+
+		init(tick) := 0;
+		next(tick) := case
+							tick >= 5 & state = red : 0;
+							tick >= 10 & state = green : 0;
+							tick >= 2 & state = yellow : 0;
+							TRUE : tick+1;
+						esac;
+
+		init(isRed) := TRUE;
+		next(isRed) := case
+							state = red : TRUE;
+							state = green : FALSE;
+							state = yellow : FALSE;
+						esac;
+
+
+MODULE main
+	VAR
+		car_l : carLight();
+		--ped_l : pedLight(car_l.isRed);
