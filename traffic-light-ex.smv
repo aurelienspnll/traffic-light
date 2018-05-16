@@ -1,16 +1,29 @@
 
-MODULE button
+--TODO : Voir avec le prof si on prend en compte le nombre de tick en comptant le tick = 0
+--sinon on a toujours un tick de plus donc on va évité de perdre de point.
+
+MODULE button(someonePress)
 VAR 
-	state : { pressed,released };
+	state : {pressed, released};
 	isPressed : boolean;
 ASSIGN
 	init(state) := released;
+	next(state) := case
+						state = released & someonePress : pressed;
+						TRUE : state;
+					esac;
+	
+	init(isPressed) := FALSE;
+	next(isPressed) := case 
+						next(state) = pressed : TRUE;
+						TRUE : FALSE;
+					esac;
 
 	
 	
-MODULE PedestrianLight(youcango)
+MODULE pedestrianLight(youcango)
 VAR 
-	state : { red, green };
+	state : {red, green};
 	
 ASSIGN
 	next(state) :=  case 	
@@ -20,7 +33,7 @@ ASSIGN
 					esac;
 
 
-MODULE carLight
+MODULE carLight(buttonHasBeenPress)
 	VAR
 		state : {red, yellow, green};
 		tick : 0..10;
@@ -30,7 +43,7 @@ MODULE carLight
 		init(state) := red;
 		next(state) := case
 							state = red & tick >= 5 : green;
-							state = green & tick >= 10 : yellow;
+							state = green & tick >= 10 & buttonHasBeenPress : yellow;
 							state = yellow & tick >= 2 : red;
 							TRUE : state;
 						esac;
@@ -38,7 +51,8 @@ MODULE carLight
 		init(tick) := 0;
 		next(tick) := case
 							tick >= 5 & state = red : 0;
-							tick >= 10 & state = green : 0;
+							tick >= 10 & next(state = yellow) : 0;
+							tick >= 10 & state = green : 10;
 							tick >= 2 & state = yellow : 0;
 							TRUE : tick+1;
 						esac;
@@ -46,20 +60,19 @@ MODULE carLight
 		init(isRed) := TRUE;
 		--Droit de passage au tick suivant ! Donc anticipé le coup suivant
 		next(isRed) := case
-							next(state = red): TRUE;
-							next(state = green): FALSE;
-							next(state = yellow): FALSE;
+							next(state = red) : TRUE;
+							next(state = green) : FALSE;
+							next(state = yellow) : FALSE;
 						esac;
-
-
-
-
-
 
 
 MODULE main
 	VAR
-		car_l : carLight;
-		ped_l : PedestrianLight(car_l.isRed);
+		car_l : carLight(ped_b.isPressed);
+		ped_l : pedestrianLight(car_l.isRed);
+		--Si tu veux voir l'évolution : le feu de voiture reste green quand c'est FALSE, si TRUE il
+		--passe yellow puis red comme avant avant de revenir green pendant au moins 10 ticks
+		ped_b : button(TRUE);
+		--ped_b : button(FALSE);
 
 

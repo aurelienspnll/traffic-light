@@ -1,2 +1,0 @@
-# TrafficLight
-Projet NuSMV
