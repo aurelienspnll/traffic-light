@@ -10,6 +10,11 @@ ASSIGN
 	init(state) := released;
 	next(state) := case
 						state = released & someonePress : pressed;
+						--Pour faire en sorte que le bouton passe à l'état relaché quand le feu des voitures est vert.
+						--Car il restait à l'état pressed lorsque le feu des voitures était vert.
+						--En gros: Lorsque le bouton est à l'état pressed et que le feu est vert pour les voitures
+						-- la variable someonePress passe à FALSE pour que le button passe à released en dessous.
+						state = pressed & next(someonePress) = !someonePress : released;
 						TRUE : state;
 					esac;
 	
@@ -47,6 +52,8 @@ MODULE carLight(buttonHasBeenPress)
 							state = yellow & tick >= 2 : red;
 							TRUE : state;
 						esac;
+		
+		
 
 		init(tick) := 0;
 		next(tick) := case
@@ -70,9 +77,23 @@ MODULE main
 	VAR
 		car_l : carLight(ped_b.isPressed);
 		ped_l : pedestrianLight(car_l.isRed);
+		isPushed : boolean;
 		--Si tu veux voir l'évolution : le feu de voiture reste green quand c'est FALSE, si TRUE il
 		--passe yellow puis red comme avant avant de revenir green pendant au moins 10 ticks
-		ped_b : button(TRUE);
+		ped_b : button(isPushed);
 		--ped_b : button(FALSE);
+
+	ASSIGN
+		--AU CHOIX: TRUE OU FALSE...
+		init(isPushed) := TRUE;
+		--Si le feu vient de passer au vert, le boutton des piétons repassent à l'état relaché et reste ainsi pendant au moins 10 secondes
+		--Pour éviter que le feu des voitures soit interrompu frequemment (voir énoncé Trafic Light Extension)
+		next(isPushed) := case		
+									next(car_l.state) = green & car_l.tick < 10 : FALSE;
+									--Pour vérifier qu'après les 10 secondes d'attente des piétons, 
+									--si on ré appuie sur le bouton des piétons, le feu de piéton repasse vert.
+						 			car_l.state = green & !isPushed &  next(car_l.tick) = 10 : TRUE;
+									TRUE : isPushed;
+						  esac;
 
 
