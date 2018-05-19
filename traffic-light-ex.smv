@@ -96,4 +96,11 @@ MODULE main
 									TRUE : isPushed;
 						  esac;
 
+	-- CTL P1 :  Il n'existe pas d'état ou on a le feu de voitures à l'état green ou yellow et le feu de piétons à l'état green. 
+	--(Voitures et piétons passent en même temps)
+	SPEC EF ! ( (car_l.state = green | car_l.state = yellow) & ped_l.state = green);
+	--CTL P2 : il est possible à partir de n'importe quel état d'atteindre un état ou les voitures passent (sans que les piétons passent) ou les piétons passent (sans que les voitures aussi passent).
+	SPEC AG EF ( (car_l.state = green & ped_l.state = red) | (car_l.state = red & ped_l.state = green)  ) 
+	--CTL P2 : toujours possible d'atteindre de n'importe quel état un état ou les voitures (ou piétons) passent. (J'ai eu un doute)
+	SPEC AG EF (car_l.state = green | ped_l.state = green) 
 
