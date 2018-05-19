@@ -102,5 +102,14 @@ MODULE main
 	--CTL P2 : il est possible à partir de n'importe quel état d'atteindre un état ou les voitures passent (sans que les piétons passent) ou les piétons passent (sans que les voitures aussi passent).
 	SPEC AG EF ( (car_l.state = green & ped_l.state = red) | (car_l.state = red & ped_l.state = green)  ) 
 	--CTL P2 : toujours possible d'atteindre de n'importe quel état un état ou les voitures (ou piétons) passent. (J'ai eu un doute)
-	SPEC AG EF (car_l.state = green | ped_l.state = green) 
+	SPEC AG EF (car_l.state = green | ped_l.state = green);
+
+
+	--LTL P1 : Feu de voitures à l'état green ou yellow implique de le feu de piéton soit rouge. OU feu de piéton vert implique que le feu de voiture soit rouge.
+	LTLSPEC G ( ((car_l.state = green | car_l.state = yellow) -> ped_l.state = red) | (ped_l.state = green -> car_l.state = red ));
+
+	--LTL P2 : Si le feu de voiture est vert ou jaune ca implique que dans le futur le feu de voiture sera rouge et donc cela permettra aux piétons de passer
+	LTLSPEC G ( (car_l.state = green | car_l.state = yellow) -> F(car_l.state = red & ped_l.state = green));
+
+
 
