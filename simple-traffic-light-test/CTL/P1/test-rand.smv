@@ -1,0 +1,41 @@
+MODULE pedestrianLight
+    VAR
+        state : { green, red };
+
+MODULE carLight
+    VAR
+        state : {red, yellow, green};
+        tick : 0..10;
+
+    ASSIGN
+        init(state) := red;
+        next(state) := case
+                            state = red & tick = 0 : green;
+                            state = green & tick = 0 : yellow;
+                            state = yellow & tick = 0 : red;
+                            TRUE : state;
+                        esac;
+
+        init(tick) := 0;
+        next(tick) := case
+                            tick = 0 & state = red : 10;
+                            tick = 0 & state = green : 2;
+                            tick = 0 & state = yellow : 5;
+                            TRUE : tick - 1;
+                        esac;
+
+MODULE main
+	VAR
+		car_l : carLight;
+		ped_l : pedestrianLight;
+
+    ASSIGN
+
+
+
+        --CTL P1
+        -- Il n'existe pas de cas où le feu n'est pas rouge (-> est jaune ou vert) et que le feu de pieton
+        -- est vert
+        SPEC AG !(!(car_l.state = red) & (ped_l.state = green));
+        --CTL P2
+

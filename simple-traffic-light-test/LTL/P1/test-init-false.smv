@@ -1,0 +1,25 @@
+--Dans ce test on va montrer que notre propriété Safety est fause à l'init car le piéton peut traverser alors que le feu de voiture est vert
+
+MODULE pedestrianLight
+    VAR
+        state : { red, green };
+
+    ASSIGN
+        init(state) := green;
+
+MODULE carLight
+	VAR
+		state : {red, yellow, green};
+
+	ASSIGN
+		init(state) := green;
+
+MODULE main
+	VAR
+		car_l : carLight;
+		ped_l : pedestrianLight;
+
+    ASSIGN
+        --LTL P1
+        LTLSPEC G ! (!(car_l.state = red) & (ped_l.state = green));
+

@@ -1,0 +1,20 @@
+MODULE pedestrianLight
+    VAR
+        state : { green, red };
+
+MODULE carLight
+    VAR
+        state : {red, yellow, green};
+
+MODULE main
+    VAR
+		car_l : carLight;
+		ped_l : pedestrianLight;
+
+    ASSIGN
+
+        --LTL P2
+        -- Pour tester la vivacité, on fait un systeme bidon qui est toujours à rouger -> alors notre pp ne passera plus
+        LTLSPEC F (car_l.state = green);
+        LTLSPEC F (ped_l.state = green);
+

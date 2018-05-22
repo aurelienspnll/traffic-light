@@ -1,0 +1,14 @@
+MODULE carLight
+    VAR
+        state : {red, yellow, green};
+
+MODULE main
+    VAR
+		car_l : carLight;
+
+    ASSIGN
+
+        --CTL P2
+        -- Pour tester la vivacité, on fait un systeme bidon qui est toujours à rouger -> alors notre pp ne passera plus
+        SPEC AF (car_l.state = green)
+

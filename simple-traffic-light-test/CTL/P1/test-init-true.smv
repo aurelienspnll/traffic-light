@@ -1,0 +1,31 @@
+--Dans ce test on va montrer que notre propriété Safety est vrai à l'init quand le piéton peut traverser alors que le feu de voiture est red, mais le "tick" suivant la P1 sera fausse dans le cas d'un changement de d'etat du feu de voiture (random)
+
+MODULE pedestrianLight
+    VAR
+        state : { red, green };
+
+    ASSIGN
+        init(state) := green;
+
+MODULE carLight
+	VAR
+		state : {red, yellow, green};
+
+	ASSIGN
+		init(state) := red;
+
+MODULE main
+	VAR
+		car_l : carLight;
+		ped_l : pedestrianLight;
+
+    ASSIGN
+
+
+
+        --CTL P1
+        -- Il n'y a pas de cas où le feu n'est pas rouge (-> est jaune ou vert) et que le feu de pieton
+        -- est vert
+        SPEC AG !(!(car_l.state = red) & (ped_l.state = green));
+        --CTL P2
+

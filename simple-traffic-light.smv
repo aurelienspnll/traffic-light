@@ -53,12 +53,17 @@ MODULE main
 
     ASSIGN
         --CTL P1
-        -- Il n'existe pas de cas où le feu n'est pas rouge (-> est jaune ou vert) et que le feu de pieton
+        -- Il n'existe pas de cas où le feu n'est pas rouge (cad est jaune ou vert) et que le feu de pieton
         -- est vert
-        SPEC EG !(!(car_l.state = red) & ped_l.state = green);
+        SPEC AG !(!(car_l.state = red) & (ped_l.state = green));
         --CTL P2
         -- Pour tester la vivacité, on fait un systeme bidon qui est toujours à rouger -> alors notre pp ne passera plus
-
+        SPEC AF (car_l.state = green);
+        SPEC AF (ped_l.state = green);
 
         --LTL P1
-        --LTLSPEC G !(!(car_l.state = red) & ped_l.state = green);
+        --Le feu de voiture ne peut pas être jaune ou vert en même temps que le feu de pieton est au vert
+        LTLSPEC G ! (!(car_l.state = red) & (ped_l.state = green));
+        --LTL P2
+        LTLSPEC F (car_l.state = green);
+        LTLSPEC F (ped_l.state = green);
