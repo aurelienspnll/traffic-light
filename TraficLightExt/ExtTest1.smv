@@ -80,19 +80,7 @@ MODULE main
 		isPushed : boolean;
 		ped_b : button(isPushed,car_l.isRed);
 
-	-- CTL P1 :  Il n'existe pas d'état ou on a le feu de voitures à l'état green ou yellow et le feu de piétons à l'état green. 
-	--(Voitures et piétons passent en même temps)
-	SPEC AG !( !(car_l.state = red) & ped_l.state = green);
-	--LTL P1 : le fait que le feu de voiture n'est pas rouge (donc est vert ou jaune) implique que le feu de piéton n'est pas vert.
-	LTLSPEC G ( !(car_l.state = red) -> !(ped_l.state = green));
-
-
-
-	--Modifier CTL P2 ET LTL P2.
-	--CTL P2: A chaque occurence de button.isPressed (coté piéton)
-	SPEC AG ( ped_b.isPressed -> AF ped_l.state = green);
-	--CTL P2: le fait que le pieton n'ai pas appuyé fait que le feu reste vert pour les voitures (Coté voiture)
-	SPEC AG ( !(ped_b.isPressed) -> AF car_l.state = green);
+	
 	
 
 	--Propriété P2 EN CTL partie piéton est FALSE comme convenu. -> AJOUT ICI <-

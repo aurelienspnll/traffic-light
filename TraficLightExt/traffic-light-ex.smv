@@ -18,7 +18,7 @@ ASSIGN
 						TRUE : state;
 					esac;
 	
-	init(isPressed) := FALSE;
+	init(isPressed) :=FALSE;
 	next(isPressed) := case
 						isRed : FALSE;
 						next(state) = pressed : TRUE;
@@ -106,8 +106,6 @@ MODULE main
 
 
 
-
-
 	--P2
 	--Modifier CTL P2 ET LTL P2.
 	--CTL P2: A chaque occurence de button.isPressed (coté piéton)
@@ -118,11 +116,10 @@ MODULE main
 
 	
 	--CTL P2: le fait que le pieton n'ai pas appuyé fait que le feu reste vert pour les voitures (Coté voiture)
-	SPEC AG ( !(ped_b.isPressed) -> AF car_l.state = green);
+	SPEC AG (!isPushed & car_l.state = green) -> AG car_l.state = green;
 	--LTL P2: le fait que le pieton n'ai pas appuyé fait que le feu reste vert pour les voitures (Coté voiture)
-	LTLSPEC G ( !(ped_b.isPressed) -> F car_l.state = green);
+	LTLSPEC G (!isPushed & car_l.state = green) -> G car_l.state = green;
 
-	
 	
 
 	--TESTS:
