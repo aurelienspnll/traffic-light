@@ -1,0 +1,137 @@
+
+--TODO : Voir avec le prof si on prend en compte le nombre de tick en comptant le tick = 0
+--sinon on a toujours un tick de plus donc on va évité de perdre de point.
+
+MODULE button(someonePress, isRed)
+VAR 
+	state : {pressed, released};
+	isPressed : boolean;
+ASSIGN
+	init(state) := released;
+	next(state) := case
+						state = released & next(someonePress) : pressed;
+						--Pour faire en sorte que le bouton passe à l'état relaché quand le feu des voitures est vert.
+						--Car il restait à l'état pressed lorsque le feu des voitures était vert.
+						--En gros: Lorsque le bouton est à l'état pressed et que le feu est vert pour les voitures
+						-- la variable someonePress passe à FALSE pour que le button passe à released en dessous.
+						state = pressed & next(!someonePress) : released;
+						TRUE : state;
+					esac;
+	
+	init(isPressed) := FALSE;
+	next(isPressed) := case
+						isRed : FALSE;
+						next(state) = pressed : TRUE;
+						TRUE : isPressed;
+					esac;
+
+	
+	
+MODULE pedestrianLight(youcango)
+VAR 
+	state : {red, green};
+	
+ASSIGN
+	next(state) :=  case 	
+						state = red & next(youcango) : green;
+						state = green & next(!youcango) : red;
+						TRUE : state;
+					esac;
+
+
+MODULE carLight(buttonHasBeenPress)
+	VAR
+		state : {red, yellow, green};
+		tick : 0..10;
+		isRed : boolean;
+
+	ASSIGN
+		init(state) := red;
+		next(state) := case
+							state = red & tick = 0 : green;
+							state = green & tick = 0 & buttonHasBeenPress : yellow;
+							state = yellow & tick = 0 : red;
+							TRUE : state;
+						esac;
+		
+		
+
+		init(tick) := 0;
+		next(tick) := case
+							tick = 0 & state = red : 10;
+							tick = 0 & next(state = yellow) : 2;
+							tick = 0 & state = green : 0;
+							tick = 0 & state = yellow : 5;
+							TRUE : tick - 1;
+						esac;
+
+		init(isRed) := TRUE;
+		--Droit de passage au tick suivant ! Donc anticipé le coup suivant
+		next(isRed) := case
+							next(state = red) : TRUE;
+							next(state = green) : FALSE;
+							next(state = yellow) : FALSE;
+						esac;
+
+
+MODULE main
+	VAR
+		car_l : carLight(ped_b.isPressed);
+		ped_l : pedestrianLight(car_l.isRed);
+		isPushed : boolean;
+		--Si tu veux voir l'évolution : le feu de voiture reste green quand c'est FALSE, si TRUE il
+		--passe yellow puis red comme avant avant de revenir green pendant au moins 10 ticks
+		ped_b : button(isPushed,car_l.isRed);
+		--ped_b : button(FALSE);
+
+	--ASSIGN
+		--AU CHOIX: TRUE OU FALSE pour tester si le comportement est le bon
+		--init(isPushed) := TRUE;
+		--Si le feu vient de passer au vert, le boutton des piétons repassent à l'état relaché et reste ainsi pendant au moins 10 secondes
+		--Pour éviter que le feu des voitures soit interrompu frequemment (voir énoncé Trafic Light Extension)
+		--next(isPushed) := case		
+								--Si on appuie pendant que le feu est vert (le feu passe yellow puis rouge quand on appuie), on enregistre la demande de passage.
+								--next(car_l.state) = green & isPushed : TRUE;
+								--Si le feu est vert ou yellow et qu'on a pas appuyé, on renvoie FALSE.
+								--next(car_l.state) = red & isPushed : FALSE;
+								--TRUE : isPushed;
+						  --esac;
+
+	--P1
+	-- CTL P1 :  Il n'existe pas d'état ou on a le feu de voitures à l'état green ou yellow et le feu de piétons à l'état green. 
+	--(Voitures et piétons passent en même temps)
+	SPEC AG !( !(car_l.state = red) & ped_l.state = green);
+	--LTL P1 : le fait que le feu de voiture n'est pas rouge (donc est vert ou jaune) implique que le feu de piéton n'est pas vert.
+	LTLSPEC G ( !(car_l.state = red) -> !(ped_l.state = green));
+
+
+
+
+
+	--P2
+	--Modifier CTL P2 ET LTL P2.
+	--CTL P2: A chaque occurence de button.isPressed (coté piéton)
+	SPEC AG ( ped_b.isPressed -> AF ped_l.state = green);
+	--LTL P2: A chaque occurence de button.isPressed (coté piéton)
+	LTLSPEC G ( ped_b.isPressed -> F ped_l.state = green);
+
+
+	
+	--CTL P2: le fait que le pieton n'ai pas appuyé fait que le feu reste vert pour les voitures (Coté voiture)
+	SPEC AG ( !(ped_b.isPressed) -> AF car_l.state = green);
+	--LTL P2: le fait que le pieton n'ai pas appuyé fait que le feu reste vert pour les voitures (Coté voiture)
+	LTLSPEC G ( !(ped_b.isPressed) -> F car_l.state = green);
+
+	
+	
+
+	--TESTS:
+	-- TESTS CTL P2 : PIETON -> ExtTestP2Pieton & VOITURE -> ExtTestP2Voiture
+	-- tester : Propriétées de la première version ne passent pas pour la deuxième version (extension) quand le pieton appuie : ExtTest1.smv
+	-- tester : Propriétées de la première version passent pour la deuxième version (extension) quand le pieton appuie pas. : ExtTest2.smv
+	-- tester : propriétées de la deuxième version passe pour la deuxième version (extension) c'est ce qui montrerera la différence entre les propriétées de la V1 ET V2: 
+	-- fichier actuel
+
+
+
+
