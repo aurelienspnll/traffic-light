@@ -47,9 +47,9 @@ MODULE carLight(buttonHasBeenPress)
 	ASSIGN
 		init(state) := red;
 		next(state) := case
-							state = red & tick >= 5 : green;
-							state = green & tick >= 10 & buttonHasBeenPress : yellow;
-							state = yellow & tick >= 2 : red;
+							state = red & tick = 0 : green;
+							state = green & tick = 0 & buttonHasBeenPress : yellow;
+							state = yellow & tick = 0 : red;
 							TRUE : state;
 						esac;
 		
@@ -57,11 +57,11 @@ MODULE carLight(buttonHasBeenPress)
 
 		init(tick) := 0;
 		next(tick) := case
-							tick >= 5 & state = red : 0;
-							tick >= 10 & next(state = yellow) : 0;
-							tick >= 10 & state = green : 10;
-							tick >= 2 & state = yellow : 0;
-							TRUE : tick+1;
+							tick = 0 & state = red : 10;
+							tick = 0 & next(state = yellow) : 2;
+							tick = 0 & state = green : 0;
+							tick = 0 & state = yellow : 5;
+							TRUE : tick - 1;
 						esac;
 
 		init(isRed) := TRUE;
