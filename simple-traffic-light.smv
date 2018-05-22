@@ -1,13 +1,13 @@
 MODULE pedestrianLight(youcango)
-VAR 
-	state : { red, green };
-	
-ASSIGN
-	next(state) :=  case 	
-						state = red & next(youcango) : green;
-						state = green & next(!youcango) : red;
-						TRUE : state;
-					esac;
+    VAR
+        state : { red, green };
+
+    ASSIGN
+        next(state) :=  case
+                            state = red & next(youcango) : green;
+                            state = green & next(!youcango) : red;
+                            TRUE : state;
+                        esac;
 
 
 MODULE carLight
@@ -19,26 +19,25 @@ MODULE carLight
 	ASSIGN
 		init(state) := red;
 		next(state) := case
-							state = red & tick >= 5 : green;
-							state = green & tick >= 10 : yellow;
-							state = yellow & tick >= 2 : red;
+							state = red & tick = 0 : green;
+							state = green & tick = 0 : yellow;
+							state = yellow & tick = 0 : red;
 							TRUE : state;
 						esac;
 
 		init(tick) := 0;
 		next(tick) := case
-							tick >= 5 & state = red : 0;
-							tick >= 10 & state = green : 0;
-							tick >= 2 & state = yellow : 0;
-							TRUE : tick+1;
+							tick = 0 & state = red : 10;
+							tick = 0 & state = green : 2;
+							tick = 0 & state = yellow : 5;
+							TRUE : tick - 1;
 						esac;
 
 		init(isRed) := TRUE;
 		--Droit de passage au tick suivant ! Donc anticipé le coup suivant
 		next(isRed) := case
 							next(state = red): TRUE;
-							next(state = green): FALSE;
-							next(state = yellow): FALSE;
+							TRUE : FALSE;
 						esac;
 
 
@@ -52,4 +51,14 @@ MODULE main
 		car_l : carLight;
 		ped_l : pedestrianLight(car_l.isRed);
 
+    ASSIGN
+        --CTL P1
+        -- Il n'existe pas de cas où le feu n'est pas rouge (-> est jaune ou vert) et que le feu de pieton
+        -- est vert
+        SPEC EG !(!(car_l.state = red) & ped_l.state = green);
+        --CTL P2
+        -- Pour tester la vivacité, on fait un systeme bidon qui est toujours à rouger -> alors notre pp ne passera plus
 
+
+        --LTL P1
+        --LTLSPEC G !(!(car_l.state = red) & ped_l.state = green);
