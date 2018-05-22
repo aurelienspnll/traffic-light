@@ -83,33 +83,38 @@ MODULE main
 		ped_b : button(isPushed);
 		--ped_b : button(FALSE);
 
-	ASSIGN
+	--ASSIGN
 		--AU CHOIX: TRUE OU FALSE...
-		init(isPushed) := TRUE;
+		--init(isPushed) := TRUE;
 		--Si le feu vient de passer au vert, le boutton des piétons repassent à l'état relaché et reste ainsi pendant au moins 10 secondes
 		--Pour éviter que le feu des voitures soit interrompu frequemment (voir énoncé Trafic Light Extension)
-		next(isPushed) := case		
-									next(car_l.state) = green & car_l.tick < 10 : FALSE;
+		--next(isPushed) := case		
+									--next(car_l.state) = green & car_l.tick < 10 : FALSE;
 									--Pour vérifier qu'après les 10 secondes d'attente des piétons, 
 									--si on ré appuie sur le bouton des piétons, le feu de piéton repasse vert.
-						 			car_l.state = green & !isPushed &  next(car_l.tick) = 10 : TRUE;
-									TRUE : isPushed;
-						  esac;
+						 			--car_l.state = green & !isPushed &  next(car_l.tick) = 10 : TRUE;
+									--TRUE : isPushed;
+						  --esac;
 
 	-- CTL P1 :  Il n'existe pas d'état ou on a le feu de voitures à l'état green ou yellow et le feu de piétons à l'état green. 
 	--(Voitures et piétons passent en même temps)
-	SPEC EF ! ( (car_l.state = green | car_l.state = yellow) & ped_l.state = green);
+	SPEC EG !(!(car_l.state = red) & ped_l.state = green);
+	--LTL P1 : le fait que le feu de voiture n'est pas rouge (donc est vert ou jaune) implique que le feu de piéton n'est pas vert.
+	LTLSPEC G ( !(car_l.state = red) -> !(ped_l.state = green));
+
+	--Modifier CTL P2 ET LTL P2.
 	--CTL P2 : il est possible à partir de n'importe quel état d'atteindre un état ou les voitures passent (sans que les piétons passent) ou les piétons passent (sans que les voitures aussi passent).
 	SPEC AG EF ( (car_l.state = green & ped_l.state = red) | (car_l.state = red & ped_l.state = green)  ) 
 	--CTL P2 : toujours possible d'atteindre de n'importe quel état un état ou les voitures (ou piétons) passent. (J'ai eu un doute)
 	SPEC AG EF (car_l.state = green | ped_l.state = green);
 
 
-	--LTL P1 : Feu de voitures à l'état green ou yellow implique de le feu de piéton soit rouge. OU feu de piéton vert implique que le feu de voiture soit rouge.
-	LTLSPEC G ( ((car_l.state = green | car_l.state = yellow) -> ped_l.state = red) | (ped_l.state = green -> car_l.state = red ));
+	
+	--LTLSPEC G ( ((car_l.state = green | car_l.state = yellow) -> ped_l.state = red) | (ped_l.state = green -> car_l.state = red ));
+	
 
 	--LTL P2 : Si le feu de voiture est vert ou jaune ca implique que dans le futur le feu de voiture sera rouge et donc cela permettra aux piétons de passer
-	LTLSPEC G ( (car_l.state = green | car_l.state = yellow) -> F(car_l.state = red & ped_l.state = green));
+	--LTLSPEC G ( (car_l.state = green | car_l.state = yellow) -> F(car_l.state = red & ped_l.state = green));
 
 
 
