@@ -1,0 +1,120 @@
+\documentclass[a4paper]{report}
+\usepackage[latin1]{inputenc}   
+\usepackage[francais]{babel}    
+\usepackage{hyperref}
+\usepackage{graphicx}
+\renewcommand\thesection{\arabic{section}}
+
+\title{Trafic Light}
+\author{G.Fernandes Junior  \and Spinelli Aurélien}
+\date{\today}
+
+
+\begin{document}
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+
+\part{Tests Trafic Light Simple}
+\section{Parties Aurélien Spinelli}
+
+\part{Tests Trafic Light Extension}
+\section{Tests des anciennes propriétés du Trafic Light Simple sur le model Trafic Light Extension}
+\subsection{Test Liveness des piétons}
+Tout d'abord, le fichier test se nomme "ExtTest1.smv". Le fichier contient le même model que "traffic-light-ex.smv" et les deux propriétés (CTL et LTL) de Liveness pour les piétons, concernant le model simple du trafic light.
+Nous allons ici tester si la propriété de Liveness (P2) du model Trafic Light Simple est toujours vérifiée dans le model Trafic Light Extension. Étant donné que dans le deuxième model, le piéton traverse uniquement lorsqu'il en fait la demande, en appuyant sur le bouton, la propriété du premier model ne devrait pas être vérifiée dans le second model. Notre propriété CTL est la suivante: SPEC AF (ped\_l.state = green). Cette propriété stipule que l'état du feu de piéton à vert est atteignable par tous les futurs chemins.
+Bien évidemment, étant donné que le piéton n'appuie pas à chaque fois, il y aura forcément un contre exemple:
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.3]{Test1AncienModel} 
+\label{fig1}
+\caption{Test numéro un}
+\end{figure}
+\newpage
+Notre specification LTL pour la deuxième propriété du premier model est la suivante: LTLSPEC F (ped\_l.state = green);
+Comme convenu, elle n'est pas vérifiée pour les mêmes raisons:
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.3]{Test1AncienModelLTL} 
+\label{fig2}
+\caption{Test numéro deux}
+\end{figure}
+
+\newpage
+\subsection{Test Liveness des voitures}
+Nous allons entreprendre les mêmes tests pour les voitures dans le fichier "ExtTest2.smv". Dans ce fichier, le model sera aussi le même que celui du fichier "traffic-light-ex.smv" concernant le model Trafic Light Extension.
+Nous y avons ajouté les anciennes propriétés (pour P2) du model simple qui sont:
+\begin{itemize}
+\item en CTL: SPEC AF (car\_l.state = green)
+\item en LTL: LTLSPEC F (car\_l.state = green);
+\end{itemize} 
+\smallbreak
+Dans ce cas, ces deux propriétés devraient être vérifiées car le feu de voiture reste au vert tant que le piéton n'appuie pas sur le bouton pour demander à passer. Nous aurons donc, pour chaque chemin, un état ou le feu de voiture sera vert:
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.3]{Test2AncienModel} 
+\label{fig3}
+\caption{Test numéro deux}
+\end{figure}
+
+\newpage
+\section{Test des propriétés du Trafic Light Extension}
+Nous avons, pour la propriété P2, définit quatre spécifications, c'est à dire deux propriétés LTL et deux propriétés CTL. Les deux premières spécifications LTL et CTL seront vues dans la partie "Test de la demande de passage du piéton" puis les deux autres spécifications seront vues dans la partie nommée "Test du feu de voiture".
+\subsection{Test de la demande de passage du piéton}
+Dans le fichier nommé "ExtTestP2Pieton.smv", nous créons un model simpliste où le bouton du feu de piéton est pressé volontairement pour vérifier si son feu passe au vert une fois la demande effectuée. Cependant, ici, nous avons fait en sorte que le feu de piéton reste rouge quoi qu'il advienne. Nos propriétés CTL et LTL stipulent le fait qu'à chaque fois que la demande de passage est effectuée cela implique que le feu de piéton sera vert à chaque fois suite à la demande de passage. Vous l'aurez comprit, en forçant le feu de piéton à rouge, les propriétés ne devraient pas être vérifiées. Ces propriétés sont d'ailleurs celles de Liveness (P2) pour le model Trafic Light Extension. Voici donc les propriétés:
+\begin{itemize}
+\item en CTL: SPEC AG ( ped\_b.isPressed $\rightarrow$ AF ped\_l.state = green);
+\item en LTL: LTLSPEC G ( ped\_b.isPressed $\rightarrow$ F ped\_l.state = green);
+\end{itemize} 
+\smallbreak
+Nous avons un contre exemple nous démontrant que la propriété, vérifiant que le feu passe au vert après une demande de passage, a correctement été écrite car, ici, le test échoue en nous disant que le feu n'est jamais passé au vert après une demande de piéton.
+Voici, le premier résultat concernant la propriété CTL: 
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.3]{Test3CTL} 
+\label{fig4}
+\caption{Test propriété CTL}
+\end{figure}
+\smallbreak
+\newpage
+Respectivement, voici le résultat du contre exemple pour la propriété LTL:
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.3]{Test3LTL} 
+\label{fig4}
+\caption{Test propriété LTL}
+\end{figure}
+\smallbreak
+
+\newpage
+\subsection{Test du feu de voiture}
+Nous allons ici tester les deux dernières spécifications pour la propriété P2 du Trafic Light Extension. Les deux spécifications sont les suivantes:
+\begin{itemize}
+\item en CTL: SPEC AG  ( (ped\_b.isPressed = FALSE \& AG ped\_b.isPressed = FALSE) $\rightarrow$  AG car\_l.state = green);
+\item en LTL: LTLSPEC G ( (ped\_b.isPressed = FALSE \& G ped\_b.isPressed = FALSE) $\rightarrow$ F (G car\_l.state = green));
+\end{itemize} 
+La première specification vérifie que si aucun piéton n'appuie sur le bouton de passage maintenant ou dans le futur cela impliquerait que le feu de voiture reste vert maintenant et dans le futur globalement et pour tous les chemins possibles.
+La deuxième spécification vérifie que si aucun piéton n'appuie sur le bouton de passage maintenant ou dans le futur cela impliquerait que, finalement, dans le futur, le feu de voiture sera vert.
+Dans le fichier nommé "ExtTestP2Voiture.smv", nous faisons en sorte de mettre le feu de voiture initialement à vert, puis dans le prochain état nous le passons à rouge. Nous supposons que le piéton n'appuie jamais sur le bouton pour demander à passer. Nos spécifications vérifient que si personne n'appuie (à présent et dans le futur) le feu reste vert. En ayant mis le feu de voiture à rouge volontairement, les deux propriétés devraient échouer car le feu devait rester vert. Le contre exemple de la spécification CTL est la suivante:
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.3]{VoitureCTL} 
+\label{fig5}
+\caption{Test propriété CTL}
+\end{figure}
+\smallbreak
+\newpage
+Respectivement, voici le contre exemple de la spécification LTL:
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.3]{VoitureLTL} 
+\label{fig6}
+\caption{Test propriété LTL}
+\end{figure}
+\smallbreak
+
+
+
+
+\end{document}

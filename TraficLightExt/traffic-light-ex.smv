@@ -107,7 +107,7 @@ MODULE main
 
 
 	--P2
-	--Modifier CTL P2 ET LTL P2.
+
 	--CTL P2: A chaque occurence de button.isPressed (coté piéton)
 	SPEC AG ( ped_b.isPressed -> AF ped_l.state = green);
 	--LTL P2: A chaque occurence de button.isPressed (coté piéton)
@@ -115,10 +115,13 @@ MODULE main
 
 
 	
-	--CTL P2: le fait que le pieton n'ai pas appuyé fait que le feu reste vert pour les voitures (Coté voiture)
-	SPEC AG (!isPushed & car_l.state = green) -> AG car_l.state = green;
-	--LTL P2: le fait que le pieton n'ai pas appuyé fait que le feu reste vert pour les voitures (Coté voiture)
-	LTLSPEC G (!isPushed & car_l.state = green) -> G car_l.state = green;
+	--P2
+	--Le fait que personne n'appuie sur le bouton maintenant et dans le futur implique que globalement et pour tout les chemins le feu de voiture sera vert.
+	SPEC AG  ( (ped_b.isPressed = FALSE & AG ped_b.isPressed = FALSE) ->  AG car_l.state = green);
+	
+	--P2
+	--Le fait que personne n'appuie maintenant et globalement dans le futur implique que finalement le feu de voiture sera globalement vert dans le futur.
+	LTLSPEC G ( (ped_b.isPressed = FALSE & G ped_b.isPressed = FALSE) -> F (G car_l.state = green));
 
 	
 

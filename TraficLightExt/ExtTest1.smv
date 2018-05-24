@@ -79,10 +79,11 @@ MODULE main
 		ped_l : pedestrianLight(car_l.isRed);
 		isPushed : boolean;
 		ped_b : button(isPushed,car_l.isRed);
-
-	
 	
 
-	--Propriété P2 EN CTL partie piéton est FALSE comme convenu. -> AJOUT ICI <-
+	--Propriété P2 EN CTL du piéton qui doit être fausse.
 	SPEC AF (ped_l.state = green)
+	--Propriété P2 en LTL du piéton qui doit être fausse.
+	LTLSPEC F (ped_l.state = green);
+	
 	

@@ -1,7 +1,4 @@
 
---TODO : Voir avec le prof si on prend en compte le nombre de tick en comptant le tick = 0
---sinon on a toujours un tick de plus donc on va évité de perdre de point.
-
 MODULE button(someonePress, isRed)
 VAR 
 	state : {pressed, released};
@@ -18,7 +15,7 @@ ASSIGN
 						TRUE : state;
 					esac;
 	
-	init(isPressed) := FALSE;
+	init(isPressed) :=FALSE;
 	next(isPressed) := case
 						isRed : FALSE;
 						next(state) = pressed : TRUE;
@@ -79,15 +76,18 @@ MODULE main
 		car_l : carLight(ped_b.isPressed);
 		ped_l : pedestrianLight(car_l.isRed);
 		isPushed : boolean;
+		--Si tu veux voir l'évolution : le feu de voiture reste green quand c'est FALSE, si TRUE il
+		--passe yellow puis red comme avant avant de revenir green pendant au moins 10 ticks
 		ped_b : button(isPushed,car_l.isRed);
-	ASSIGN
-		init(isPushed) := FALSE;
-		next(isPushed) := FALSE;
+		--ped_b : button(FALSE);
+
+		
+
 	
-	--Propriété P2 EN CTL partie piéton est TRUE comme convenu car le piéton n'appuie pas sur le bouton dans cas. -> AJOUT ICI <-
+	--Propriété P2 EN CTL partie voiture est TRUE comme convenu car le piéton n'appuie pas sur le bouton dans cas.
 	SPEC AF (car_l.state = green)
-
-
+	--Propriété P2 en LTL partie voiture est TRUE comme convenu car le piéton n'appuie pas sur le bouton dans cas.
+	LTLSPEC F (car_l.state = green);
 
 
 
