@@ -1,0 +1,229 @@
+\documentclass[11pt]{report}
+
+\usepackage[latin1]{inputenc}
+\usepackage[francais]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{4}
+
+\title{Projet NuSMV - Traffic light}
+\author{Aurélien Spinelli - Junior Fernandes}
+\date{25 mai 2018}
+
+%Corps du document :
+\begin{document}
+    \maketitle
+    
+    \chapter*{Introduction}
+    
+    Nous avons réaliser un projet sur l'implémentation  d'un feu de voiture et piéton où un bouton d'appel intervient. Ce projet a été encadré par Pr. Frédéric Mallet dans le cadre du Master Informatique.
+    \newline Notre projet consistera dans un premier temps à faire réaliser un \og \textit{Simple traffic light }\fg{} qui sera composé uniquement d'un feu de voiture et de piéton, puis nous réaliserons une extension de ce dernier en rajoutant un bouton d'appel pour le feu de piéton.
+    
+    \tableofcontents
+    
+    
+    
+
+
+    \chapter{Simple traffic light}
+    
+    Dans ce chapitre nous allons décrire la façon dont nous avons implémenté les éléments de notre \textit{Simple traffic light }. Nous expliquerons également les propriétés de suretés et vivacités et les tests réalisés pour vérifier leurs bien-fondés.  (cf. simple-traffic-light.smv)
+    
+    \section{Module}
+    
+    Notre projet sera réalisé à l'aide de module définissant le comportement de nos feux de manière indépendante, pour pouvoir avoir un système extensible.
+    
+    \subsection{Feu de piéton}
+    
+    Notre feu de piéton sera composé uniquement d'une variable d'état qui définira si le piéton peut oui ou non traverser (resp. vert ou rouge). On définira également les transitions d'état suivant l'entrée qui nous indique si notre piéton peut traverser. Cette entrée TRUE ou FALSE si les voitures sont entrain de rouler ou non. On passe donc de l'état rouge à vert s'il n'y a aucune voiture,  et de l'état vert à rouge s'il y a des voitures. Les autres transitions ne sont pas utile à spécifier, d'où le \og TRUE : state; \fg{}.
+    	\begin{center}
+		\includegraphics[scale=0.5]{image/module1.png}
+	\end{center}
+   
+    
+    \subsection{Feu de voiture}
+    Notre feu de voiture est composé de trois variables dont une variable d'état qui aura 3 états possibles : vert, jaune, ou rouge (la valeur initiale sera rouge). Elle aura ses transitions définies comme étant un cycle. Une variable tick qui définira le temps passé dans chaque état qui variera entre 0 et 10, car 10 est la plus grande valeur atteinte. Et également une variable, isRed, booléenne qui sera utilisée pour indiquer si aucune voiture ne roule et donc utilisé pour le feu de piéton. Cela permet de ne pas avoir le module de piéton dépendant de celui de voiture. 
+    \newline Les transitions dépendent donc de l'état actuel et du nombre de tick, les ticks sont décrémenté à chaque étape et lorsqu'on atteint la valeur 0 c'est que l'on a passé le temps nécessaire dans un état, on peut donc passer à l'état suivant. Nous prenons le cas où tick atteint 0 pour ne pas à avoir à modifier les valeurs utiles pour les transitions de state et tick.
+    \newline Pour finir la valeur de tick est donné par le temps que l'on va passer dans un état. 
+    \newline Exemple : Si le feu était rouge et que le tick a atteint la valeur 0, c'est-à-dire que doit passer à l'état vert, la valeur du tick va prendre celle du temps que l'on va passer dans ce dernier.
+      
+	\begin{center}
+		\includegraphics[scale=0.5]{image/module2.png}
+	\end{center}
+	
+      \section{Exécution}
+      
+      Voici l'exécution d'un cycle de notre système :
+      
+      \begin{minipage}[c]{.46\linewidth}
+     \begin{center}
+             \includegraphics[scale=0.5]{image/exec2.png}
+         \end{center}
+   \end{minipage} \hfill
+   \begin{minipage}[c]{.46\linewidth}
+    \begin{center}
+            \includegraphics[scale=0.5]{image/exec1.png}
+        \end{center}
+ \end{minipage}
+    
+      \section{Propriété}
+    Notre système doit également répondre à deux propriétés, celle de sureté et vivacité, qui respectivement assure que le piéton ne peut traverser 	lorsque les voitures circulent, et qu'à n'importe quel moment notre piéton pourra traversé. Ces propriétés seront exprimer à l'aide de formule CTL et LTL. 
+    \newline
+    
+    \subsection{CTL}
+    	\subsubsection{Propriété de sureté}
+		Cette propriété sera exprimé de la manière suivante : 
+		\begin{center}
+		SPEC AG  ! ( ! ( car\_l.state = red ) \& ( ped\_l.state = green ) ) ;
+		\end{center}
+		 qui se traduit littéralement par : \og Il n'existe pas de cas où le feu n'est pas rouge (c-à-d est jaune ou vert) et que le feu de piéton est vert \fg{}
+    	
+    
+	\subsubsection{Propriété de vivacité}
+    		Cette propriété sera décomposé en deux parties simples :
+		\begin{center}
+			SPEC AF (car\_l.state = green);
+        		\end{center}
+		\begin{center}
+			SPEC AF (ped\_l.state = green);
+        		\end{center}
+		 Ces propriétés expriment le fait que depuis n'importe quelle situation il existe un moyen d'avoir le feu de voiture et de piéton qui passera au vert. 
+		
+	 \subsection{LTL}
+	 
+	 Nous remarquons que contrairement aux propriétés CTL, les propriétés LTL n'ont pas de quantificateur de chemin, car ces propriétés sont évaluées sur des \og linear paths\fg{}, et une propriété est considérée comme étant vraie à un moment donné si elle est vraie pour tous les chemins commen\c{c}ant par ce dernier.
+	 
+	\subsubsection{Propriété de sureté}
+		Cette propriété sera exprimé de la manière suivante : 
+		\begin{center}
+		LTLSPEC G  ! ( ! ( car\_l.state = red ) \& ( ped\_l.state = green ) ) ;
+		\end{center}
+		 qui se traduit de la même fa\c{c}on que la propriété CTL, mais on remarque comme vu précédemment que nous ne précisons pas le quantificateur de chemin.    	
+    
+	\subsubsection{Propriété de vivacité}
+    		Cette propriété sera décomposé en deux parties simples comme en CTL:
+		\begin{center}
+			LTLSPEC F (car\_l.state = green);
+        		\end{center}
+		\begin{center}
+			LTLSPEC F (ped\_l.state = green);
+        		\end{center}
+
+
+	\section{Test}
+	\subsection{CTL \& LTL}
+	Les propriétés sont exprimés de deux façon différentes, CTL et LTL, mais en ce qui concerne les tests ils sont identiques.    	\subsubsection{Propriété de sureté}
+    
+    	Pour tester la propriété de sureté on va créer des systèmes plus simplistes pour mettre en avant des situations qui ne répondent pas à cette dernière. Nous avons donc mis en place un système où l'initialisation met les deux feux à vert et nous obtenons le résultat suivant :
+	\begin{center}
+		\includegraphics[scale=0.7]{image/test1.png}
+	\end{center}
+	
+	Nous voyons ici que dès l'initialisation la propriété est fausse.
+	\newline Nous avons également fait un test où l'initialisation était correct :
+	\begin{center}
+		\includegraphics[scale=0.7]{image/test2.png}
+	\end{center}
+	Nous voyons ici qu'à la première étape la propriété était vraie mais le changement de valeur du feu de voiture étant aléatoire, ce dernier est passé à jaune ce qui fait que notre propriété n'est plus vérifiée.
+	\newline De plus, nous avons ici les trois différentes situations possibles lorsque le feu de piéton est vert. Notre propriété est donc validée.
+	\newline Dans le dossier simple-traffic-light-test/CTL/P1 nous avons aussi ajouté deux tests supplémentaires qui mettent en avant un compteur décalé, et un test où le feu suit son cycle normalement mais le feu de piéton change d'état aléatoirement.
+    
+    
+    	\subsubsection{Propriété de vivacité}
+	
+	Nous testons les deux propriétés séparément car elles sont indépendantes néanmoins elles devront être vraies en même temps dans notre système ce qui permettra d'assurer la vivacité des piétons et des voitures.
+	\newline Pour ces tests nous mettons en place un système composé uniquement d'un feu de piéton ou de voiture, suivant la partie de la propriété testé, qui reste à rouge. Ces tests indique bien que nos propriétés sont fausses dans ces systèmes, et vraies dans des systèmes restant à vert. Nos propriétés sont donc vérifiées, et étant donné que dans notre système \og \textit{Simple traffic light }\fg{}  les vérifies également la vivacité de notre système est assuré.
+	
+	 \chapter{Traffic light extension}
+	 
+	 Dans ce chapitre nous réalisons une extension de notre  \og \textit{Simple traffic light }\fg{} pour y ajouter un nouveau module qui représente un bouton d'appel pour les piétons. (cf. traffic-light-extension.smv)
+	 
+	 \section{Module}
+	  \subsection{Buton d'appel}
+    
+    Notre bouton a une variable d'état qui indique si notre bouton est pressé ou non à l'instant t, cette variable dépend d'une entrée booléenne qui représente le fait qu'un piéton appuie sur le bouton. Si personne n'appuie le bouton est dit \og relâché\fg{}. Mais pour sauvegarder le fait que quelqu'un ait appuyé, nous utilisons une autre variable qui joue ce rôle. Cette dernière repassera à FALSE lorsque l'entrée \og isRed\fg{} sera vraie, pour indiquer que le feu de voiture est passé au rouge c'est-à-dire que l'appel à été pris en compte et a été traité.
+    	\begin{center}
+		\includegraphics[scale=0.48]{image/module3.png}
+	\end{center}
+    	
+	 \subsection{Feu de voiture}
+	 
+	 Les variables du feu de voiture n'ont pas changé mais les transitions des variables oui. Maintenant le feu reste dans l'état vert jusqu'à ce que nous re\c{c}evions un appel. Cet appel est pris en compte seulement quand nous sommes dans l'état vert, car dans les autres états il n'a aucune influence. Si nous n'avons aucun appel le feu reste dans l'état vert.
+	 \begin{center}
+		\includegraphics[scale=0.48]{image/module4.png}
+	\end{center}
+	
+	\section{Exécution}
+	Nous allons réaliser l'exécution de notre système dans deux cas : sans appel de piéton pour montrer que le feu reste indéfiniment au vert, et une exécution avec appel pour mettre en avant les transitions.
+	\subsection{Sans appel}
+	
+	      \begin{minipage}[c]{.46\linewidth}
+     \begin{center}
+             \includegraphics[scale=0.5]{image/exec3.png}
+         \end{center}
+   \end{minipage} \hfill
+   \begin{minipage}[c]{.46\linewidth}
+    \begin{center}
+            \includegraphics[scale=0.5]{image/exec4.png}
+        \end{center}
+ \end{minipage}
+    
+    \subsection{Avec appel}
+    
+     \begin{minipage}[c]{.46\linewidth}
+     \begin{center}
+             \includegraphics[scale=0.5]{image/exec5.png}
+         \end{center}
+   \end{minipage} \hfill
+   \begin{minipage}[c]{.46\linewidth}
+    \begin{center}
+            \includegraphics[scale=0.5]{image/exec6.png}
+        \end{center}
+ \end{minipage}
+    
+     \section{Propriété}
+     
+     Dans notre nouveau système, la propriété de sureté reste la même, nous devons continuer à assurer que le piéton ne se fera pas assuré. Mais la propriété de vivacité se voit changé.  
+    
+    \subsection{CTL}
+    	\subsubsection{Propriété de vivacité}
+	
+	Notre propriété de vivacité est maintenant dépendante du l'appel, car le feu de piéton ne passera plus au vert si personne ne fait d'appel. Néanmoins du coté des voitures la propriété n'a pas changé car le feu respecte un cycle équivalent à la version précédente. Nous allons donc nous attarder sur la propriété pour les piétons :
+	 \begin{center}
+		\includegraphics[scale=0.7]{image/module5.png}
+	\end{center}
+	La propriété indique que pour tout les états où le bouton d'appel a été pressé, nous avons dans le future le feu de piéton qui passe au vert.
+	
+	\subsection{LTL}
+    	\subsubsection{Propriété de vivacité}
+	
+	La propriété en LTL est équivalente à celle en CTL sans le quantificateur de chemin comme vu précédemment :
+	 \begin{center}
+		\includegraphics[scale=0.7]{image/module6.png}
+	\end{center}
+	
+	\section{Test}
+	\subsection{CTL \& LTL}
+	\subsubsection{Propriété de vivacité}
+	
+	Pour montrer la cohérence de notre système nous testons également la propriété de vivacité du système précédant :
+	\begin{center}
+		SPEC AF (ped\_l.state = green);
+	\end{center}
+	\begin{center}
+		SPEC AF (ped\_l.state = green);
+	\end{center}
+	Et notre test montre que la propriété est fausse dans le cas où personne ne fait d'appel, car cet appel est géré de manière aléatoire dans notre test. Nous voyons donc que sans appel le feu reste au rouge d'où la réfutation de nos propriétés.
+	\newline	Nous allons tester les propriétés énoncées dans les points précédant. Nous allons changer le système de tel sorte à ce que le feu de piéton ne passe plus au vert même après un appel. Nos propriétés seront fausses dans ce système.
+	\begin{center}
+		\includegraphics[scale=0.55]{image/test3.png}
+		\newline On voit ici que le feu de piéton reste au rouge. Le test pour la propriété CTL donne le même résultat.
+	\end{center}
+    
+  \chapter*{Conclusion}
+  	Nous avons donc réussi à exposer des cas particuliers pour que nos propriétés soient fausses, et donc montrer que si ces dernières sont vraies dans nos systèmes c'est que ces situations ne se produisent jamais. De plus nos systèmes ont des modules indépendants se qui nous permet par exemple de simuler des carrefours facilement.
+  
+\end{document}

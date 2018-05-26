@@ -1,0 +1,47 @@
+--TODO : Voir avec le prof si on prend en compte le nombre de tick en comptant le tick = 0
+--sinon on a toujours un tick de plus donc on va évité de perdre de point.
+
+MODULE carLight(buttonHasBeenPress)
+	VAR
+		state : {red, yellow, green};
+		tick : 0..10;
+		isRed : boolean;
+
+	ASSIGN
+		init(state) := red;
+		next(state) := case
+                            --On laisse le feu à rouge
+							state = red & tick = 0 : red;
+							state = green & tick = 0 & buttonHasBeenPress : yellow;
+							state = yellow & tick = 0 : red;
+							TRUE : state;
+						esac;
+		
+		
+
+		init(tick) := 0;
+		next(tick) := case
+							tick = 0 & state = red : 10;
+							tick = 0 & next(state = yellow) : 2;
+							tick = 0 & state = green : 0;
+							tick = 0 & state = yellow : 5;
+							TRUE : tick - 1;
+						esac;
+
+		init(isRed) := TRUE;
+		--Droit de passage au tick suivant ! Donc anticipé le coup suivant
+		next(isRed) := case
+							next(state = red) : TRUE;
+							TRUE : FALSE;
+						esac;
+
+
+MODULE main
+	VAR
+		car_l : carLight(TRUE);
+	
+    --CTL P2: Le feu de voiture doit toujours finir par passé au vert
+    SPEC AF car_l.state = green;
+    --LTL P2: Le feu de voiture doit toujours finir par passé au vert
+    LTLSPEC F car_l.state = green;
+	

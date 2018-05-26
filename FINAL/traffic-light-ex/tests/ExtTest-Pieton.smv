@@ -1,0 +1,85 @@
+--TODO : Voir avec le prof si on prend en compte le nombre de tick en comptant le tick = 0
+--sinon on a toujours un tick de plus donc on va évité de perdre de point.
+
+MODULE button(someonePress, isRed)
+VAR 
+	state : {pressed, released};
+	isPressed : boolean;
+ASSIGN
+	init(state) := released;
+	next(state) := case
+						state = released & next(someonePress) : pressed;
+						state = pressed & next(!someonePress) : released;
+						TRUE : state;
+					esac;
+	
+	init(isPressed) := FALSE;
+	next(isPressed) := case
+						isRed : FALSE;
+						next(state) = pressed : TRUE;
+						TRUE : isPressed;
+					esac;
+
+	
+	
+MODULE pedestrianLight(youcango)
+VAR 
+	state : {red, green};
+	
+ASSIGN
+	next(state) :=  case 	
+						state = red & next(youcango) : green;
+						state = green & next(!youcango) : red;
+						TRUE : state;
+					esac;
+
+
+MODULE carLight(buttonHasBeenPress)
+	VAR
+		state : {red, yellow, green};
+		tick : 0..10;
+		isRed : boolean;
+
+	ASSIGN
+		init(state) := red;
+		next(state) := case
+							state = red & tick = 0 : green;
+							state = green & tick = 0 & buttonHasBeenPress : yellow;
+							state = yellow & tick = 0 : red;
+							TRUE : state;
+						esac;
+		
+		
+
+		init(tick) := 0;
+		next(tick) := case
+							tick = 0 & state = red : 10;
+							tick = 0 & next(state = yellow) : 2;
+							tick = 0 & state = green : 0;
+							tick = 0 & state = yellow : 5;
+							TRUE : tick - 1;
+						esac;
+
+		init(isRed) := TRUE;
+		--Droit de passage au tick suivant ! Donc anticipé le coup suivant
+		next(isRed) := case
+							next(state = red) : TRUE;
+							next(state = green) : FALSE;
+							next(state = yellow) : FALSE;
+						esac;
+
+
+MODULE main
+	VAR
+		car_l : carLight(ped_b.isPressed);
+		ped_l : pedestrianLight(car_l.isRed);
+		isPushed : boolean;
+		ped_b : button(isPushed,car_l.isRed);
+
+	
+	
+
+	--Propriété P2 EN CTL partie piéton est FALSE comme convenu. -> AJOUT ICI <-
+	SPEC AF (ped_l.state = green)
+    LTLSPEC F (ped_l.state = green)
+	
