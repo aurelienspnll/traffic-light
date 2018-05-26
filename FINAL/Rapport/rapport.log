@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2018.1.20)  26 MAY 2018 13:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2018.1.20)  26 MAY 2018 13:57
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -485,7 +485,7 @@ usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></us
 r/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/
 local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/lo
 cal/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on rapport.pdf (18 pages, 1053482 bytes).
+Output written on rapport.pdf (18 pages, 1053474 bytes).
 PDF statistics:
  314 PDF objects out of 1000 (max. 8388607)
  254 compressed objects within 3 object streams

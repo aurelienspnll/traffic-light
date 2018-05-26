@@ -209,7 +209,7 @@
 	\subsection{CTL \& LTL}
 	\subsubsection{Propriété de vivacité}
 	
-	Pour montrer la cohérence de notre système nous testons également la propriété de vivacité du système précédant :
+	Pour montrer la cohérence de notre système nous testons également la propriété de vivacité du système précédent :
 	\begin{center}
 		SPEC AF (ped\_l.state = green);
 	\end{center}
@@ -217,13 +217,13 @@
 		SPEC AF (ped\_l.state = green);
 	\end{center}
 	Et notre test montre que la propriété est fausse dans le cas où personne ne fait d'appel, car cet appel est géré de manière aléatoire dans notre test. Nous voyons donc que sans appel le feu reste au rouge d'où la réfutation de nos propriétés.
-	\newline	Nous allons tester les propriétés énoncées dans les points précédant. Nous allons changer le système de tel sorte à ce que le feu de piéton ne passe plus au vert même après un appel. Nos propriétés seront fausses dans ce système.
+	\newline	Nous allons tester les propriétés énoncées dans les points précédents. Nous allons changer le système de tel sorte à ce que le feu de piéton ne passe plus au vert même après un appel. Nos propriétés seront fausses dans ce système.
 	\begin{center}
 		\includegraphics[scale=0.55]{image/test3.png}
 		\newline On voit ici que le feu de piéton reste au rouge. Le test pour la propriété CTL donne le même résultat.
 	\end{center}
     
   \chapter*{Conclusion}
-  	Nous avons donc réussi à exposer des cas particuliers pour que nos propriétés soient fausses, et donc montrer que si ces dernières sont vraies dans nos systèmes c'est que ces situations ne se produisent jamais. De plus nos systèmes ont des modules indépendants se qui nous permet par exemple de simuler des carrefours facilement.
+  	Nous avons donc réussi à exposer des cas particuliers pour que nos propriétés soient fausses, et donc montrer que si ces dernières sont vraies dans nos systèmes c'est que ces situations ne se produisent jamais. De plus nos systèmes ont des modules indépendants ce qui nous permet par exemple de simuler des carrefours facilement.
   
 \end{document}
